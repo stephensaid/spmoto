@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SP Motor Kiosk</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Hide scrollbar for a cleaner kiosk look */
+    ::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+
+    body {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      background-color: #f3f4f6;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col h-screen font-sans text-gray-800 overflow-hidden bg-gray-100">
+
+  <!-- DYNAMIC HEADER (Morphs between square and top-bar) -->
+  <header id="dynamic-header" onclick="closePartner()"
+    class="transition-all duration-500 ease-in-out w-[150px] h-[150px] mt-12 mb-6 mx-auto bg-[#00A1E4] shadow-xl flex items-center justify-center shrink-0 z-20 relative">
+    <!-- Back Button (Fades in when morphed to top-bar) -->
+    <button id="header-back-btn" onclick="event.stopPropagation(); closePartner();"
+      class="absolute left-6 opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-2 text-white hover:text-gray-200 active:scale-95 z-30">
+      <i data-lucide="arrow-left" class="w-8 h-8"></i>
+    </button>
+    <!-- Replace 'images/logo.png' with the actual transparent logo file. -->
+    <img src="images/logo.png" alt="SP Motor Logo" class="h-[80%] object-contain transition-all duration-500"
+      onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';">
+    <i id="fallback-icon" data-lucide="shield"
+      class="text-white hidden transition-all duration-500 w-[60%] h-[60%]"></i>
+  </header>
+
+  <!-- MAIN HOMEPAGE VIEW -->
+  <div id="main-view"
+    class="transition-opacity duration-300 opacity-100 flex-grow flex flex-col items-center px-6 w-full overflow-y-auto pb-24 pt-4">
+
+    <!-- PARTNERS SECTION -->
+    <section class="w-full mb-12">
+      <div class="flex flex-wrap justify-center gap-4 md:gap-10">
+        <!-- Partner 1: Parts Europe -->
+        <button onclick="openPartner('https://www.partseurope.eu/')"
+          class="w-24 h-24 md:w-32 md:h-32 bg-white rounded-none flex items-center justify-center border-2 border-transparent hover:border-[#00A1E4] transition-all group p-2 md:p-4">
+          <img src="https://www.partseurope.eu/build/assets/all/images/logo/default.644dbf228ccdf1a6f1d7.png"
+            alt="Parts Europe" class="w-full h-full object-contain">
+        </button>
+        <!-- Partner 2: Omnia Racing -->
+        <button onclick="openPartner('https://www.omniaracing.net/')"
+          class="w-24 h-24 md:w-32 md:h-32 bg-white rounded-none flex items-center justify-center border-2 border-transparent hover:border-[#00A1E4] transition-all group p-2 md:p-4">
+          <img src="https://www.omniaracing.net/template/cyrus/images/logo.png" alt="Omnia Racing"
+            class="w-full h-full object-contain">
+        </button>
+      </div>
+    </section>
+
+    <!-- GALLERY / FEATURED PRODUCTS SECTION -->
+    <section class="w-full pb-10">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6 text-center md:text-left border-b pb-2">Featured
+        Products & Gallery</h2>
+      <!-- MASONRY LAYOUT -->
+      <div id="gallery-grid" class="columns-2 md:columns-3 lg:columns-4 xl:columns-5 2xl:columns-6 gap-[5px] w-full">
+        <!-- JavaScript will inject gallery items here -->
+      </div>
+    </section>
+  </div>
+
+  <!-- IFRAME PARTNER VIEW -->
+  <div id="iframe-view"
+    class="hidden transition-opacity duration-300 opacity-0 flex-col w-full h-full pb-[88px] relative">
+    <div class="flex-grow w-full h-full bg-gray-100 relative">
+      <div id="loading-indicator" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-100 z-0">
+        <i data-lucide="loader-2" class="w-10 h-10 text-[#00A1E4] animate-spin mb-2"></i>
+        <span class="text-gray-500 font-medium">Loading partner site...</span>
+      </div>
+      <iframe id="partner-iframe" class="w-full h-full border-0 relative z-10" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- FOOTER: SPmoto.mt and QR Code (Always visible) -->
+  <footer class="w-full bg-gray-900 text-white shadow-inner fixed bottom-0 left-0 right-0 z-50 h-[88px]">
+    <div class="max-w-7xl mx-auto px-6 h-full flex justify-between items-center">
+
+      <div class="flex flex-col cursor-pointer group" onclick="closePartner()">
+        <span id="footer-hint"
+          class="text-gray-400 text-xs uppercase tracking-widest group-hover:text-white transition-colors">Visit us
+          online</span>
+        <span
+          class="text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow-md group-hover:text-[#00A1E4] transition-colors">spmoto.mt</span>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="text-right hidden sm:block">
+          <span class="block text-sm font-bold text-gray-300">Scan to Pay</span>
+          <span class="block text-xs text-gray-500">Revolut</span>
+        </div>
+        <div onclick="openQRModal()"
+          class="w-14 h-14 md:w-16 md:h-16 bg-white p-1 rounded-lg flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg">
+          <i data-lucide="qr-code" class="w-full h-full text-gray-900"></i>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- QR CODE MODAL -->
+  <div id="qr-modal"
+    class="hidden fixed inset-0 z-[100] bg-black/80 flex-col items-center justify-center p-6 backdrop-blur-sm transition-opacity duration-300"
+    onclick="closeQRModal()">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center max-w-sm w-full"
+      onclick="event.stopPropagation()">
+      <div class="w-full flex justify-between items-center mb-6">
+        <div class="flex flex-col">
+          <h3 class="text-2xl font-extrabold text-gray-900 tracking-tight">Scan to Pay</h3>
+          <span class="text-sm font-medium text-gray-500">Revolut Secure Payment</span>
+        </div>
+        <button onclick="closeQRModal()"
+          class="text-gray-400 hover:text-red-600 transition-colors p-2 bg-gray-100 rounded-full hover:bg-red-50">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <div
+        class="w-64 h-64 bg-gray-50 rounded-2xl flex items-center justify-center mb-6 border-4 border-gray-100 shadow-inner">
+        <i data-lucide="qr-code" class="w-48 h-48 text-gray-800"></i>
+      </div>
+
+      <p class="text-gray-600 text-center text-sm font-medium">
+        Open your Revolut app and scan this code to complete your transaction.
+      </p>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL FOR GALLERY -->
+  <div id="lightbox-modal"
+    class="hidden fixed inset-0 z-[110] bg-black/95 flex-col items-center justify-center p-4 backdrop-blur-md transition-opacity duration-300"
+    onclick="closeLightbox()">
+    <button onclick="closeLightbox()"
+      class="absolute top-6 right-6 text-white hover:text-red-500 transition-colors p-2 bg-white/10 hover:bg-white/20 rounded-full z-50">
+      <i data-lucide="x" class="w-8 h-8"></i>
+    </button>
+    <button onclick="prevImage(event)"
+      class="absolute left-4 md:left-10 top-1/2 -translate-y-1/2 text-white hover:text-[#00A1E4] transition-colors p-3 bg-white/10 hover:bg-white/20 rounded-full z-50">
+      <i data-lucide="chevron-left" class="w-8 h-8 md:w-12 md:h-12"></i>
+    </button>
+    <div class="flex flex-col items-center max-w-5xl w-full" onclick="event.stopPropagation()">
+      <div id="lightbox-image-container"
+        class="w-full aspect-video md:aspect-[16/7] bg-gray-800 rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden border border-gray-700 relative">
+        <img id="lightbox-real-image" src="" alt="Gallery Image" class="w-full h-full object-contain hidden z-10">
+        <!-- Video thumbnail with play overlay — clicking opens YouTube in partner view -->
+        <div id="lightbox-video-thumb" class="hidden w-full h-full relative cursor-pointer z-10" onclick="lightboxPlayVideo()">
+          <img id="lightbox-video-thumb-img" src="" alt="Video Thumbnail" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+            <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-200">
+              <i data-lucide="play" class="w-10 h-10 text-white ml-1"></i>
+            </div>
+          </div>
+        </div>
+        <i id="lightbox-placeholder-icon" data-lucide="image" class="w-32 h-32 text-gray-600 absolute"></i>
+      </div>
+      <h3 id="lightbox-caption"
+        class="text-white text-xl md:text-3xl font-bold mt-6 tracking-wide text-center drop-shadow-lg">Image Title</h3>
+      <p class="text-gray-400 mt-2 text-sm">Image <span id="lightbox-counter">1</span> of <span
+          id="lightbox-total">X</span></p>
+
+      <button id="lightbox-action-btn"
+        class="hidden mt-6 bg-[#00A1E4] hover:bg-blue-400 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2">
+        <i data-lucide="external-link" class="w-5 h-5"></i>
+        <span>View Product Details</span>
+      </button>
+    </div>
+    <button onclick="nextImage(event)"
+      class="absolute right-4 md:right-10 top-1/2 -translate-y-1/2 text-white hover:text-[#00A1E4] transition-colors p-3 bg-white/10 hover:bg-white/20 rounded-full z-50">
+      <i data-lucide="chevron-right" class="w-8 h-8 md:w-12 md:h-12"></i>
+    </button>
+  </div>
+
+  <!-- EXTERNAL DATABASE SCRIPT -->
+  <script src="data.js"></script>
+
+  <!-- LOGIC SCRIPTS -->
+  <script>
+    lucide.createIcons();
+
+    // --- QR Modal Logic ---
+    const qrModal = document.getElementById('qr-modal');
+
+    function openQRModal() {
+      qrModal.classList.remove('hidden');
+      qrModal.classList.add('flex');
+    }
+
+    function closeQRModal() {
+      qrModal.classList.add('hidden');
+      qrModal.classList.remove('flex');
+    }
+
+    // --- iFrame Logic ---
+    const mainView = document.getElementById('main-view');
+    const iframeView = document.getElementById('iframe-view');
+    const partnerIframe = document.getElementById('partner-iframe');
+    const dynamicHeader = document.getElementById('dynamic-header');
+    const footerHint = document.getElementById('footer-hint');
+    const headerBackBtn = document.getElementById('header-back-btn');
+
+    function openPartner(url) {
+      mainView.classList.remove('opacity-100');
+      mainView.classList.add('opacity-0');
+
+      setTimeout(() => {
+        mainView.classList.add('hidden');
+        iframeView.classList.remove('hidden');
+        footerHint.textContent = 'Tap to return to menu';
+
+        dynamicHeader.classList.remove('w-[150px]', 'h-[150px]', 'mt-12', 'mb-6');
+        dynamicHeader.classList.add('w-full', 'h-[75px]', 'mt-0', 'mb-0', 'cursor-pointer', 'hover:brightness-95');
+
+        setTimeout(() => {
+          iframeView.classList.remove('opacity-0');
+          iframeView.classList.add('opacity-100');
+          headerBackBtn.classList.remove('opacity-0', 'pointer-events-none');
+          partnerIframe.src = url;
+        }, 500);
+      }, 300);
+    }
+
+    function closePartner() {
+      if (!iframeView.classList.contains('opacity-100')) return;
+
+      iframeView.classList.remove('opacity-100');
+      iframeView.classList.add('opacity-0');
+      headerBackBtn.classList.add('opacity-0', 'pointer-events-none');
+
+      setTimeout(() => {
+        iframeView.classList.add('hidden');
+        mainView.classList.remove('hidden');
+        partnerIframe.src = '';
+        footerHint.textContent = 'Visit us online';
+
+        dynamicHeader.classList.remove('w-full', 'h-[75px]', 'mt-0', 'mb-0', 'cursor-pointer', 'hover:brightness-95');
+        dynamicHeader.classList.add('w-[150px]', 'h-[150px]', 'mt-12', 'mb-6');
+
+        setTimeout(() => {
+          mainView.classList.remove('opacity-0');
+          mainView.classList.add('opacity-100');
+        }, 500);
+      }, 300);
+    }
+
+    // --- Gallery & Product Logic ---
+    const grayShades = [
+      'bg-gray-200', 'bg-gray-300', 'bg-gray-400', 'bg-gray-500',
+      'bg-gray-600', 'bg-gray-700', 'bg-gray-800', 'bg-slate-400'
+    ];
+
+    let galleryOnlyItems = [];
+
+    function getYouTubeId(url) {
+      if (!url) return null;
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([^?&\s]+)/);
+      return match ? match[1] : null;
+    }
+
+    function renderGallery() {
+      const galleryContainer = document.getElementById('gallery-grid');
+      galleryContainer.innerHTML = '';
+
+      if (typeof featuredItems === 'undefined') {
+        console.error("Could not load data.js! Ensure the file exists in the same folder.");
+        galleryContainer.innerHTML = '<p class="text-red-500 col-span-full text-center py-10 font-bold">Error: Could not load gallery data. Please check data.js file.</p>';
+        return;
+      }
+
+      featuredItems.forEach((item, index) => {
+        const grayColor = grayShades[index % grayShades.length];
+        const videoId = item.video ? getYouTubeId(item.video) : null;
+        const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+        const hasVisual = !!(item.image || thumbUrl);
+        const isDark = hasVisual ? true : ['bg-gray-600', 'bg-gray-700', 'bg-gray-800'].includes(grayColor);
+        const textColor = isDark ? 'text-white' : 'text-gray-800';
+        const subTextColor = isDark ? 'text-gray-200' : 'text-gray-600';
+
+        let clickAction = '';
+        let icon = '';
+        let hoverText = '';
+        let badge = '';
+
+        if (videoId) {
+          clickAction = `openLightbox(${index})`;
+          icon = 'play-circle';
+          hoverText = 'Play Video';
+          if (item.type === 'product') {
+            badge = `<span class="absolute top-2 left-2 bg-[#00A1E4]/90 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-20 backdrop-blur-sm">Product</span>`;
+          } else {
+            badge = `<span class="absolute top-2 left-2 bg-red-600/90 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-20 backdrop-blur-sm">Video</span>`;
+          }
+        } else if (item.type === 'product') {
+          clickAction = `openPartner('${item.link}')`;
+          icon = 'external-link';
+          hoverText = 'View in Portal';
+          badge = `<span class="absolute top-2 left-2 bg-[#00A1E4]/90 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-20 backdrop-blur-sm">Product</span>`;
+        } else {
+          clickAction = `openLightbox(${index})`;
+          icon = 'zoom-in';
+          hoverText = 'Enlarge Image';
+          badge = `<span class="absolute top-2 left-2 bg-gray-800/90 text-white text-[10px] uppercase font-bold px-2 py-1 rounded shadow-sm z-20 backdrop-blur-sm">Gallery</span>`;
+        }
+
+        let visualContent = '';
+        const displayImage = item.image || thumbUrl;
+        const containerClasses = `break-inside-avoid mb-[5px] w-full group relative overflow-hidden transition-all duration-300 ${hasVisual ? 'bg-gray-900' : grayColor + ' aspect-square flex flex-col items-center justify-center p-4'} cursor-pointer`;
+
+        if (displayImage) {
+          visualContent = `
+                        <img src="${displayImage}" alt="${item.title}" class="w-full h-auto block object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-0 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                        ${videoId ? `<div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none"><div class="w-14 h-14 bg-red-600/90 rounded-full flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform duration-300"><i data-lucide="play" class="w-7 h-7 text-white ml-1"></i></div></div>` : ''}
+                        <div class="absolute bottom-0 left-0 right-0 p-4 z-10 flex flex-col items-center">
+                            <h3 class="font-bold text-center ${textColor} text-sm md:text-lg drop-shadow-md px-2">${item.title}</h3>
+                            <p class="text-xs text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${subTextColor} bg-white/90 px-3 py-1.5 rounded-full text-gray-900 font-bold shadow-sm">
+                                ${hoverText}
+                            </p>
+                        </div>
+                    `;
+        } else {
+          visualContent = `
+                        <i data-lucide="${icon}" class="w-10 h-10 md:w-12 md:h-12 mb-3 opacity-50 ${textColor} group-hover:scale-110 transition-transform duration-300 z-10"></i>
+                        <div class="z-10 flex flex-col items-center">
+                            <h3 class="font-bold text-center ${textColor} text-sm md:text-lg drop-shadow-md px-2">${item.title}</h3>
+                            <p class="text-xs text-center mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${subTextColor} bg-white/90 px-3 py-1.5 rounded-full text-gray-900 font-bold shadow-sm">
+                                ${hoverText}
+                            </p>
+                        </div>
+                    `;
+        }
+
+        const itemHTML = `
+                    <div onclick="${clickAction}" class="${containerClasses}">
+                        ${badge}
+                        ${visualContent}
+                    </div>
+                `;
+
+        galleryContainer.innerHTML += itemHTML;
+      });
+
+      lucide.createIcons();
+    }
+
+    // --- Lightbox Logic ---
+    const lightboxModal = document.getElementById('lightbox-modal');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxCounter = document.getElementById('lightbox-counter');
+    const lightboxTotal = document.getElementById('lightbox-total');
+    const lightboxActionBtn = document.getElementById('lightbox-action-btn');
+    let currentLightboxIndex = 0;
+
+    function openLightbox(index) {
+      currentLightboxIndex = index;
+      updateLightboxView();
+      lightboxModal.classList.remove('hidden');
+      lightboxModal.classList.add('flex');
+    }
+
+    let lightboxCurrentVideoUrl = null;
+
+    function lightboxPlayVideo() {
+      if (lightboxCurrentVideoUrl) {
+        closeLightbox();
+        openPartner(lightboxCurrentVideoUrl);
+      }
+    }
+
+    function closeLightbox() {
+      lightboxModal.classList.add('hidden');
+      lightboxModal.classList.remove('flex');
+      lightboxCurrentVideoUrl = null;
+    }
+
+    function nextImage(event) {
+      event.stopPropagation();
+      if (featuredItems.length === 0) return;
+      currentLightboxIndex = (currentLightboxIndex + 1) % featuredItems.length;
+      updateLightboxView();
+    }
+
+    function prevImage(event) {
+      event.stopPropagation();
+      if (featuredItems.length === 0) return;
+      currentLightboxIndex = (currentLightboxIndex - 1 + featuredItems.length) % featuredItems.length;
+      updateLightboxView();
+    }
+
+    function updateLightboxView() {
+      if (featuredItems.length === 0) return;
+      const item = featuredItems[currentLightboxIndex];
+
+      lightboxCaption.textContent = item.title;
+      lightboxCounter.textContent = currentLightboxIndex + 1;
+      lightboxTotal.textContent = featuredItems.length;
+
+      const realImage = document.getElementById('lightbox-real-image');
+      const placeholder = document.getElementById('lightbox-placeholder-icon');
+      const videoThumb = document.getElementById('lightbox-video-thumb');
+      const videoThumbImg = document.getElementById('lightbox-video-thumb-img');
+      const videoId = item.video ? getYouTubeId(item.video) : null;
+
+      // Reset all
+      realImage.src = '';
+      realImage.classList.add('hidden');
+      videoThumb.classList.add('hidden');
+      videoThumbImg.src = '';
+      placeholder.classList.add('hidden');
+      lightboxCurrentVideoUrl = null;
+
+      if (videoId) {
+        lightboxCurrentVideoUrl = item.video;
+        videoThumbImg.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        videoThumb.classList.remove('hidden');
+        lucide.createIcons({ nodes: [videoThumb] });
+      } else if (item.image) {
+        realImage.src = item.image;
+        realImage.classList.remove('hidden');
+      } else {
+        placeholder.classList.remove('hidden');
+      }
+
+      if (item.type === 'product' && item.link && item.link !== '#') {
+        lightboxActionBtn.classList.remove('hidden');
+        lightboxActionBtn.onclick = (e) => {
+          e.stopPropagation();
+          closeLightbox();
+          openPartner(item.link);
+        };
+      } else {
+        lightboxActionBtn.classList.add('hidden');
+        lightboxActionBtn.onclick = null;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', renderGallery);
+  </script>
+</body>
+
+</html>
