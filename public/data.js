@@ -1,6 +1,23 @@
 // SP MOTOR - KIOSK DATABASE
 // Only edit the items below. Make sure every item has a comma at the end (except the last one)!
 
+// ============================================================
+// PARTNERS — add or remove partner buttons here
+// logo: path to a local image in images/ folder, or a full URL
+// ============================================================
+const partners = [
+  {
+    name: "Parts Europe",
+    url: "https://www.partseurope.eu/",
+    logo: "assets/logos/europeparts.png",
+  },
+  {
+    name: "Omnia Racing",
+    url: "https://www.omniaracing.net/",
+    logo: "assets/logos/omniaracing.jpg",
+  },
+];
+
 const featuredItems = [
   {
     type: "product",
@@ -48,7 +65,7 @@ const featuredItems = [
     title: "Workshop Area",
     link: "#",
     image:
-      "https://images.unsplash.com/photo-1605335198226-c172a1e16fdf?w=800&q=80",
+      "https://images.unsplash.com/photo-1658486002629-ebb945eec316?w=800&q=80",
   },
   {
     type: "product",
@@ -74,16 +91,15 @@ const featuredItems = [
   {
     type: "product",
     title: "Leather Jacket Pro",
-    link: "https://www.google.com/search?igu=1",
-    image:
-      "https://images.unsplash.com/photo-1520113524584-36109315d909?w=800&q=80",
+    link: "https://www.partseurope.eu/en/product/motorhead3tm-jacket/28103855",
+    image: "images/jacket1.webp",
   },
   {
     type: "gallery",
     title: "Custom Builds",
     link: "#",
     image:
-      "https://images.unsplash.com/photo-1590507963334-a690e3abdbf6?w=800&q=80",
+      "https://images.unsplash.com/photo-1629970887992-711d07aacfff?w=800&q=80",
   },
   {
     type: "product",

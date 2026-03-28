@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SP Motor Kiosk</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2300AEEF'/><text y='.9em' font-size='80' x='10'>🏍</text></svg>">
+  <link rel="stylesheet" href="assets/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+  <!-- HEADER: Square logo block → morphs to full-width top bar -->
+  <header id="dynamic-header" class="header" onclick="closePartner()">
+    <div class="header__bar">
+      <button id="header-back-btn" class="header__back-btn" onclick="event.stopPropagation(); closePartner();"
+        aria-label="Back to menu">
+        <i data-lucide="arrow-left" style="width:2rem;height:2rem"></i>
+      </button>
+      <img src="assets/logos/spmotologo.svg" alt="SP Motor Logo" class="header__logo"
+        onerror="this.style.display='none'; document.getElementById('fallback-icon').style.display='block';">
+      <i id="fallback-icon" data-lucide="shield" class="header__fallback"></i>
+    </div>
+  </header>
+
+  <!-- MAIN VIEW -->
+  <main id="main-view" class="main-view">
+
+    <!-- PARTNERS -->
+    <section class="partners" aria-label="Our Partners">
+      <div id="partners-list" class="partners__list"></div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="gallery" aria-label="Featured Products and Gallery">
+      <h2 class="gallery__heading">Featured Products &amp; Gallery</h2>
+      <div id="gallery-grid" class="gallery__grid" role="list"></div>
+    </section>
+
+  </main>
+
+  <!-- IFRAME PARTNER VIEW -->
+  <div id="iframe-view" class="iframe-view" style="opacity:0;">
+    <div class="iframe-view__inner">
+      <div class="loading-indicator" aria-hidden="true">
+        <i data-lucide="loader-2" class="animate-spin" style="width:2.5rem;height:2.5rem;color:var(--brand)"></i>
+        <span class="loading-indicator__text">Loading partner site...</span>
+      </div>
+      <iframe id="partner-iframe" class="partner-iframe" src="" title="Partner Site"></iframe>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer__inner">
+
+      <div class="footer__brand" onclick="closePartner()" role="button" tabindex="0" aria-label="Return to main menu">
+        <span id="footer-hint" class="footer__hint">Visit us online</span>
+        <span class="footer__name">spmoto.mt</span>
+      </div>
+
+      <div class="footer__qr-area">
+        <div class="footer__qr-label">
+          <span class="qr-label-title">Scan to Pay</span>
+          <span class="qr-label-sub">Revolut</span>
+        </div>
+        <button class="footer__qr-btn" onclick="openQRModal()" aria-label="Open QR payment code">
+          <i data-lucide="qr-code" style="width:100%;height:100%;color:#111827"></i>
+        </button>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- QR MODAL -->
+  <div id="qr-modal" class="modal qr-modal" onclick="closeQRModal()" role="dialog" aria-modal="true"
+    aria-label="Revolut QR Payment">
+    <div class="qr-modal__card" onclick="event.stopPropagation()">
+      <div class="qr-modal__header">
+        <div>
+          <h3 class="qr-modal__title">Scan to Pay</h3>
+          <span class="qr-modal__subtitle">Revolut Secure Payment</span>
+        </div>
+        <button class="qr-modal__close" onclick="closeQRModal()" aria-label="Close">
+          <i data-lucide="x" style="width:1.5rem;height:1.5rem"></i>
+        </button>
+      </div>
+      <div class="qr-modal__image">
+        <!-- Replace this icon with an <img> of your Revolut QR code -->
+        <i data-lucide="qr-code" style="width:12rem;height:12rem;color:#1f2937"></i>
+      </div>
+      <p class="qr-modal__text">Open your Revolut app and scan this code to complete your transaction.</p>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL -->
+  <div id="lightbox-modal" class="modal lightbox" onclick="closeLightbox()" role="dialog" aria-modal="true"
+    aria-label="Gallery Viewer">
+
+    <button class="lightbox__close" onclick="closeLightbox()" aria-label="Close lightbox">
+      <i data-lucide="x" style="width:2rem;height:2rem"></i>
+    </button>
+
+    <button class="lightbox__prev" onclick="prevImage(event)" aria-label="Previous item">
+      <i data-lucide="chevron-left" style="width:2rem;height:2rem"></i>
+    </button>
+
+    <div class="lightbox__content" onclick="event.stopPropagation()">
+      <div class="lightbox__media">
+        <img id="lightbox-real-image" class="lightbox__image" src="" alt="Gallery image">
+        <iframe id="lightbox-video-iframe" class="lightbox__iframe" src="" allow="autoplay; encrypted-media; fullscreen"
+          title="Video player"></iframe>
+        <i id="lightbox-placeholder-icon" data-lucide="image" class="lightbox__placeholder"
+          style="width:8rem;height:8rem"></i>
+      </div>
+      <h3 id="lightbox-caption" class="lightbox__caption"></h3>
+      <p class="lightbox__counter">
+        Item <span id="lightbox-counter">1</span> of <span id="lightbox-total">1</span>
+      </p>
+      <button id="lightbox-action-btn" class="lightbox__action-btn">
+        <i data-lucide="external-link" style="width:1.25rem;height:1.25rem"></i>
+        <span>View Product Details</span>
+      </button>
+    </div>
+
+    <button class="lightbox__next" onclick="nextImage(event)" aria-label="Next item">
+      <i data-lucide="chevron-right" style="width:2rem;height:2rem"></i>
+    </button>
+
+  </div>
+
+  <script src="data.js"></script>
+  <script src="assets/app.js"></script>
+
+</body>
+
+</html>
